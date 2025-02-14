@@ -1,0 +1,81 @@
+<div id="water-counter-container" style="text-align: center; padding: 25px; border: 2px solid #521c1c; border-radius: 10px; background-color: #ffffff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); color: #333; max-width: 600px; margin: 20px auto; position: relative;">
+    <!-- Water Droplet Icon -->
+    <img src="https://openmoji.org/data/color/svg/1F4A7.svg" alt="Water Droplet Icon" style="width: 60px; height: 60px; position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background-color: #ffffff; border-radius: 50%; border: 2px solid #521c1c; padding: 5px;">
+
+    <!-- Title -->
+    <h2 style="font-family: 'Lato', sans-serif; font-size: 28px; font-weight: bold; margin-top: 40px; margin-bottom: 10px; color: #521c1c;">
+      Fort Lauderdale Water Usage
+    </h2>
+
+    <!-- Inner Border for Content -->
+    <div style="border: 1px dashed #7a7a7a; padding: 15px; border-radius: 5px;">
+      <p style="font-family: 'Lato', sans-serif; font-size: 18px; margin-bottom: 15px; color: #7A7A7A;">
+        Real-time estimate of water used in Fort Lauderdale since you arrived:
+      </p>
+
+      <!-- Counter & Label in One Row -->
+      <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+        <div id="water-counter" style="font-family: 'Lato', sans-serif; font-size: 48px; font-weight: bold; color: #521c1c;">0</div>
+        <div id="water-counter-label" style="display: flex; flex-direction: column; text-align: center; font-family: 'Lato', sans-serif; font-size: 15px; font-weight: bold; color: #521c1c; line-height: 1;">
+          <div>gallons</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      // Capture the start time when the user arrives on the page.
+      const startTime = new Date();
+
+      // Estimated average water consumption for Fort Lauderdale (in gallons per day).
+      const averageDailyUsage = 70000000; // 70 million gallons per day
+      const secondsPerDay = 86400;
+      // Calculate the baseline gallons per second.
+      const baseUsagePerSecond = averageDailyUsage / secondsPerDay; // ≈ 810 gallons/sec
+
+      /**
+       * Adjusts the baseline rate based on the time of day.
+       * - Morning (6–10 AM): Higher usage (1.34×)
+       * - Midday (10 AM–5 PM): Average usage (0.96×)
+       * - Evening (5–8 PM): Elevated usage (1.24×)
+       * - Night (8 PM–2 AM): Lower usage (0.86×)
+       * - Early morning (2–6 AM): Quiet period (0.76×)
+       */
+      function getTimeOfDayMultiplier(){
+        const now = new Date();
+        const hour = now.getHours();
+
+        if (hour >= 6 && hour < 10) {
+          return 1.34;
+        } else if (hour >= 10 && hour < 17) {
+          return 0.96;
+        } else if (hour >= 17 && hour < 20) {
+          return 1.24;
+        } else if (hour >= 20 || hour < 2) {
+          return 0.86;
+        } else {
+          return 0.76;
+        }
+      }
+
+      /**
+       * Updates the water usage counter.
+       * It calculates the elapsed time since the user arrived and multiplies
+       * the base rate by the current time-of-day multiplier.
+       */
+      function updateWaterUsage(){
+        const now = new Date();
+        const elapsedSeconds = (now - startTime) / 1000;
+        const multiplier = getTimeOfDayMultiplier();
+        const waterUsed = elapsedSeconds * baseUsagePerSecond * multiplier;
+        const counterEl = document.getElementById('water-counter');
+        if (counterEl) {
+          counterEl.textContent = Math.floor(waterUsed).toLocaleString();
+        }
+      }
+
+      // Update the counter every second.
+      setInterval(updateWaterUsage, 1000);
+    })();
+  </script>
